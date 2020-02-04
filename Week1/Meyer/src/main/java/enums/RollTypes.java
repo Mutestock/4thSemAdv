@@ -193,8 +193,7 @@ public enum RollTypes{
 
     public static String reverseValueEnumNameExtraction(Optional optional) {
         highestValueUpdate();
-        //Provoke error message
-        int score = 999;
+        int score;
         if (!(optional.isPresent())) {
             score = Sequence.getSequenceSingleton().getCurrentTurnHighestValue();
         } else {
@@ -221,6 +220,30 @@ public enum RollTypes{
                 System.out.println("Woops could not retrieve highest roll. Contact programmers and tell them that they are stupid");
         }
         return "reverseValueEnumNameExtraction returned this value. Not supposed to happen. Contact programmers and tell them that they're stupid";
+    }
+    public static int[] bluffDiceRollByInt(int score) {
+        highestValueUpdate();
+        switch (score) {
+            case (7):
+                return MEYER.roll();
+            case (6):
+                return LILLE_MEYER.roll();
+            case (5):
+                return PAR6.roll();
+            case (4):
+                return PAR5.roll();
+            case (3):
+                return PAR_OTHER.roll();
+            case (2):
+                return ROLL65.roll();
+            case (1):
+                return ROLL64.roll();
+            case (0):
+                return OTHERS.roll();
+            default:
+                System.out.println("Woops could not retrieve highest roll. Contact programmers and tell them that they are stupid");
+        }
+        return null;
     }
 
     public abstract int[] roll();

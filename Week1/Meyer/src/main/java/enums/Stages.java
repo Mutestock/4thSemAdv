@@ -125,20 +125,19 @@ public enum Stages {
         @Override
         public void action() {
             Sequence sequence = Sequence.getSequenceSingleton();
-            System.out.println(""
-                    + "It's " + sequence.getCurrentPlayer().getName() + "'s turn"
-                    + "\n"
-                    + sequence.getCurrentPlayer().getName() + " currently has " + sequence.getCurrentPlayer().getLife() + " hp left"
-                    + "\n"
-                    + "\n"
-                    + "1. Roll"
-                    + "\n"
-                    + "2. Current highest score and rolls to beat"
-                    + "\n"
-            );
-
             String option;
             if (sequence.getCurrentPlayer().getPlayerType().equals("HUMAN")) {
+                System.out.println(""
+                        + "It's " + sequence.getCurrentPlayer().getName() + "'s turn"
+                        + "\n"
+                        + sequence.getCurrentPlayer().getName() + " currently has " + sequence.getCurrentPlayer().getLife() + " hp left"
+                        + "\n"
+                        + "\n"
+                        + "1. Roll"
+                        + "\n"
+                        + "2. Current highest score and rolls to beat"
+                        + "\n"
+                );
                 option = sequence.getScanner().nextLine();
             } else {
                 option = "1";
@@ -149,10 +148,10 @@ public enum Stages {
                     break;
                 case ("2"):
                     System.out.println("\n"
-                            +"The highest roll was: " + RollTypes.reverseValueEnumNameExtraction(Optional.empty())
-                            +"\n\n"
-                            +"The rolls that beat this score are: \n");
-                    RollTypes.rollsToBeat().stream().forEach(o->{
+                            + "The highest roll was: " + RollTypes.reverseValueEnumNameExtraction(Optional.empty())
+                            + "\n\n"
+                            + "The rolls that beat this score are: \n");
+                    RollTypes.rollsToBeat().stream().forEach(o -> {
                         System.out.println(o);
                     });
                     System.out.println("");
@@ -179,7 +178,7 @@ public enum Stages {
             sequence.setCurrentPlayer(
                     sequence.getPlayerList().size() == index + 1
                     ? sequence.getPlayerList().get(0) : sequence.getPlayerList().get(index + 1));
-            sequence.setTurn(sequence.getTurn()+1);
+            sequence.setTurn(sequence.getTurn() + 1);
         }
     },
     PLAYER_ELIMINATION {

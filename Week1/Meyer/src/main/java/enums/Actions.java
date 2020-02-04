@@ -3,11 +3,13 @@ package enums;
 import stragglers.Utils;
 import assignment.meyer.Player;
 import assignment.meyer.Sequence;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
+import stragglers.ComputerSpecific;
 
 /**
  *
@@ -21,6 +23,7 @@ public enum Actions {
             Sequence sequence = Sequence.getSequenceSingleton();
             int insertion1;
             int insertion2;
+            String option;
 
             if (sequence.getDiceHistory().containsKey(sequence.getTurn())) {
                 int[] alreadyRolledValues = sequence.getDiceHistory()
@@ -38,33 +41,36 @@ public enum Actions {
             }
             int[] rolls = {insertion1, insertion2};
             boolean underHighestScore = false;
-
-            System.out.println(""
-                    + "You Rolled: " + rolls[0] + " and " + rolls[1] + "\n"
-                    + "AKA " + RollTypes.reverseValueEnumNameExtraction(Optional.of(rolls))
-                    + "\n"
-            );
-            if (!(sequence.getDiceHistory().isEmpty())) {
-                if (RollTypes.valueTranslation(rolls) < sequence.getCurrentTurnHighestValue()) {
-                    underHighestScore = true;
-                    System.out.println("Warning: Your roll is below the threshold. You have to bluff in order to not lose HP");
-                } else if (RollTypes.valueTranslation(rolls) == sequence.getCurrentTurnHighestValue()) {
-                    System.out.println("Your roll matches the highest roll");
-                } else {
-                    System.out.println("Your roll is above the threshold");
+            if (sequence.getCurrentPlayer().getPlayerType().equals("HUMAN")) {
+                System.out.println(""
+                        + "You Rolled: " + rolls[0] + " and " + rolls[1] + "\n"
+                        + "AKA " + RollTypes.reverseValueEnumNameExtraction(Optional.of(rolls))
+                        + "\n"
+                );
+                if (!(sequence.getDiceHistory().isEmpty())) {
+                    if (RollTypes.valueTranslation(rolls) < sequence.getCurrentTurnHighestValue()) {
+                        underHighestScore = true;
+                        System.out.println("Warning: Your roll is below the threshold. You have to bluff in order to not lose HP");
+                    } else if (RollTypes.valueTranslation(rolls) == sequence.getCurrentTurnHighestValue()) {
+                        System.out.println("Your roll matches the highest roll");
+                    } else {
+                        System.out.println("Your roll is above the threshold");
+                    }
                 }
+                System.out.print(""
+                        + "1. Accept Roll"
+                );
+                if (underHighestScore == true) {
+                    System.out.print(". It's part of my master plan");
+                }
+                System.out.println("\n"
+                        + "2. Bluff");
+                option = sequence.getScanner().nextLine();
+            } else {
+                option = ComputerSpecific.comBluffChoice(rolls);
+                System.out.println("Option: " + option + " 1 means accept, 2 means bluff");
             }
-            System.out.print(""
-                    + "1. Accept Roll"
-            );
-            if (underHighestScore == true) {
-                System.out.print(". It's part of my master plan");
-            }
-            System.out.println("\n"
-                    + "2. Bluff");
             sequence.addToDiceHistory(rolls);
-            String option = sequence.getScanner().nextLine();
-
             switch (option) {
                 case ("1"):
                     break;
@@ -85,6 +91,7 @@ public enum Actions {
             Player opposition = sequence.getPlayerList().stream().filter(o -> !o.equals(sequence.getCurrentPlayer())).collect(Collectors.toList()).get(0);
             int[] recognizedRoll;
             boolean underHighestScore = false;
+            String optionClaim;
 
             //Can't assume that a key exists when checking or it will break. This is a bit ugly.
             //Limit else scope.
@@ -101,34 +108,43 @@ public enum Actions {
             //Looked for a better way at doing this. Couldn't find anything. Decided to keep it simple.
             System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 
-            System.out.println(""
-                    + "Greetings " + opposition.getName()
-                    + "\n\n"
-                    + "Your opponent " + sequence.getCurrentPlayer().getName() + " claims to have rolled: " + recognizedRoll[0] + " and " + recognizedRoll[1]
-                    + "\n"
-                    + "AKA: " + RollTypes.reverseValueEnumNameExtraction(Optional.of(recognizedRoll))
-                    + "\n");
+            if (opposition.getPlayerType().equals("HUMAN")) {
+                System.out.println(""
+                        + "Greetings " + opposition.getName()
+                        + "\n\n"
+                        + "Your opponent " + sequence.getCurrentPlayer().getName() + " claims to have rolled: " + recognizedRoll[0] + " and " + recognizedRoll[1]
+                        + "\n"
+                        + "AKA: " + RollTypes.reverseValueEnumNameExtraction(Optional.of(recognizedRoll))
+                        + "\n");
 
-            if (!(sequence.getDiceHistory().isEmpty())) {
-                if (RollTypes.valueTranslation(recognizedRoll) < sequence.getCurrentTurnHighestValue()) {
-                    System.out.println("This roll is below the threshold...Your opponent is being weird");
-                    underHighestScore = true;
-                } else if (RollTypes.valueTranslation(recognizedRoll) == sequence.getCurrentTurnHighestValue()) {
-                    System.out.println("This roll matches the highest roll");
-                } else {
-                    System.out.println("This roll is above the threshold");
+                if (!(sequence.getDiceHistory().isEmpty())) {
+                    if (RollTypes.valueTranslation(recognizedRoll) < sequence.getCurrentTurnHighestValue()) {
+                        System.out.println("This roll is below the threshold...Your opponent is being weird");
+                        underHighestScore = true;
+                    } else if (RollTypes.valueTranslation(recognizedRoll) == sequence.getCurrentTurnHighestValue()) {
+                        System.out.println("This roll matches the highest roll");
+                    } else {
+                        System.out.println("This roll is above the threshold");
+                    }
                 }
+
+                System.out.println(""
+                        + "\n"
+                        + "1. Accept claim and take turn"
+                        + "\n"
+                        + "2. The claim is a lie"
+                        + "\n"
+                );
+
+                optionClaim = sequence.getScanner().nextLine();
+            } else {
+                if (!(sequence.getDiceHistory().isEmpty())) {
+                    if (RollTypes.valueTranslation(recognizedRoll) < sequence.getCurrentTurnHighestValue()) {
+                        underHighestScore = true;
+                    }
+                }
+                optionClaim = ComputerSpecific.comBluffGuess(recognizedRoll);
             }
-
-            System.out.println(""
-                    + "\n"
-                    + "1. Accept claim and take turn"
-                    + "\n"
-                    + "2. The claim is a lie"
-                    + "\n"
-            );
-
-            String optionClaim = sequence.getScanner().nextLine();
             switch (optionClaim) {
                 case ("1"):
                     if (underHighestScore == true) {
@@ -154,98 +170,106 @@ public enum Actions {
         @Override
         public void action() {
             Sequence sequence = Sequence.getSequenceSingleton();
-            System.out.println(""
-                    + "You*ve chosen to bluff"
-                    + "\n"
-                    + "Please confirm"
-                    + "\n"
-                    + "\n"
-                    + "1. Confirm "
-                    + "\n"
-                    + "2. Nevermind "
-                    + "\n"
-            );
-            String optionConfirm = sequence.getScanner().nextLine();
-            switch (optionConfirm) {
-                case ("1"):
-                    System.out.println(""
-                            + "Pick your poison"
-                            + "\n"
-                            + "\n"
-                            + "1. Meyer"
-                            + "\n"
-                            + "2. Lille-Meyer"
-                            + "\n"
-                            + "3. Par 6"
-                            + "\n"
-                            + "4. Par 5"
-                            + "\n"
-                            + "5. Par 4/3/2/1"
-                            + "\n"
-                            + "6. 6+5"
-                            + "\n"
-                            + "7. 6+4"
-                            + "\n"
-                            + "8. Something else"
-                    );
-                    String optionPoison = sequence.getScanner().nextLine();
-                    switch (optionPoison) {
-                        case ("1"):
-                            sequence.addToBluffHistory(RollTypes.MEYER.roll());
-                            break;
-                        case ("2"):
-                            sequence.addToBluffHistory(RollTypes.LILLE_MEYER.roll());
-                            break;
-                        case ("3"):
-                            sequence.addToBluffHistory(RollTypes.PAR6.roll());
-                            break;
-                        case ("4"):
-                            sequence.addToBluffHistory(RollTypes.PAR5.roll());
-                            break;
-                        case ("5"):
-                            sequence.addToBluffHistory(RollTypes.PAR_OTHER.roll());
-                            break;
-                        case ("6"):
-                            sequence.addToBluffHistory(RollTypes.ROLL65.roll());
-                            break;
-                        case ("7"):
-                            sequence.addToBluffHistory(RollTypes.ROLL64.roll());
-                            break;
-                        case ("8"):
-                            System.out.println(""
-                                    + "You do know that this option makes literally no sense at all, right?"
-                                    + "\n"
-                                    + "1. You're not my mom. You can't tell me what to do"
-                                    + "\n"
-                                    + "2. Oops"
-                                    + "\n"
-                            );
-                            String optionStupid = sequence.getScanner().nextLine();
-                            switch (optionStupid) {
-                                case ("1"):
-                                    sequence.addToBluffHistory(RollTypes.OTHERS.roll());
-                                    break;
-                                case ("2"):
-                                    this.action();
-                                    break;
-                                default:
-                                    Utils.getUtilsSingleton().defaultErrorMessage(optionStupid);
-                                    this.action();
-                                    break;
-                            }
-                            break;
-                        default:
-                            Utils.getUtilsSingleton().defaultErrorMessage(optionPoison);
-                            this.action();
-                            break;
-                    }
-                    break;
-                case ("2"):
-                    break;
-                default:
-                    Utils.getUtilsSingleton().defaultErrorMessage(optionConfirm);
-                    this.action();
-                    break;
+            if (sequence.getCurrentPlayer().getPlayerType().equals("HUMAN")) {
+                System.out.println(""
+                        + "You*ve chosen to bluff"
+                        + "\n"
+                        + "Please confirm"
+                        + "\n"
+                        + "\n"
+                        + "1. Confirm "
+                        + "\n"
+                        + "2. Nevermind "
+                        + "\n"
+                );
+                String optionConfirm = sequence.getScanner().nextLine();
+                switch (optionConfirm) {
+                    case ("1"):
+                        System.out.println(""
+                                + "Pick your poison"
+                                + "\n"
+                                + "\n"
+                                + "1. Meyer"
+                                + "\n"
+                                + "2. Lille-Meyer"
+                                + "\n"
+                                + "3. Par 6"
+                                + "\n"
+                                + "4. Par 5"
+                                + "\n"
+                                + "5. Par 4/3/2/1"
+                                + "\n"
+                                + "6. 6+5"
+                                + "\n"
+                                + "7. 6+4"
+                                + "\n"
+                                + "8. Something else"
+                        );
+                        String optionPoison = sequence.getScanner().nextLine();
+                        switch (optionPoison) {
+                            case ("1"):
+                                sequence.addToBluffHistory(RollTypes.MEYER.roll());
+                                break;
+                            case ("2"):
+                                sequence.addToBluffHistory(RollTypes.LILLE_MEYER.roll());
+                                break;
+                            case ("3"):
+                                sequence.addToBluffHistory(RollTypes.PAR6.roll());
+                                break;
+                            case ("4"):
+                                sequence.addToBluffHistory(RollTypes.PAR5.roll());
+                                break;
+                            case ("5"):
+                                sequence.addToBluffHistory(RollTypes.PAR_OTHER.roll());
+                                break;
+                            case ("6"):
+                                sequence.addToBluffHistory(RollTypes.ROLL65.roll());
+                                break;
+                            case ("7"):
+                                sequence.addToBluffHistory(RollTypes.ROLL64.roll());
+                                break;
+                            case ("8"):
+                                System.out.println(""
+                                        + "You do know that this option makes literally no sense at all, right?"
+                                        + "\n"
+                                        + "1. You're not my mom. You can't tell me what to do"
+                                        + "\n"
+                                        + "2. Oops"
+                                        + "\n"
+                                );
+                                String optionStupid = sequence.getScanner().nextLine();
+                                switch (optionStupid) {
+                                    case ("1"):
+                                        sequence.addToBluffHistory(RollTypes.OTHERS.roll());
+                                        break;
+                                    case ("2"):
+                                        this.action();
+                                        break;
+                                    default:
+                                        Utils.getUtilsSingleton().defaultErrorMessage(optionStupid);
+                                        this.action();
+                                        break;
+                                }
+                                break;
+                            default:
+                                Utils.getUtilsSingleton().defaultErrorMessage(optionPoison);
+                                this.action();
+                                break;
+                        }
+                        break;
+                    case ("2"):
+                        break;
+                    default:
+                        Utils.getUtilsSingleton().defaultErrorMessage(optionConfirm);
+                        this.action();
+                        break;
+                }
+            } else {
+                String bluffAggro = ComputerSpecific.bluffAggression();
+                if (bluffAggro.equals(0)) {
+                    throw new IllegalArgumentException(bluffAggro + " bluff aggression returned 0");
+                }
+                sequence.addToBluffHistory(RollTypes.bluffDiceRollByInt(Integer.parseInt(bluffAggro)));
             }
         }
     },
